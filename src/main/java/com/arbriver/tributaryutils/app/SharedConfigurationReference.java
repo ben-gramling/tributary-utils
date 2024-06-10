@@ -6,5 +6,5 @@ import org.springframework.data.mongodb.repository.config.EnableMongoRepositorie
 
 @AutoConfiguration
 @EnableMongoRepositories(basePackages = "com.arbriver")
-@ComponentScan
+@ComponentScan("com.arbriver")
 public class SharedConfigurationReference {}
