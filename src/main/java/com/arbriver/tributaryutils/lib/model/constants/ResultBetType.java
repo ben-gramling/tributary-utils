@@ -1,6 +1,8 @@
 package com.arbriver.tributaryutils.lib.model.constants;
 
-public enum ResultBetType {
+import com.arbriver.tributaryutils.lib.model.BetType;
+
+public enum ResultBetType implements BetType {
     MATCH_WINNER,
     ASIAN_HANDICAP,
     GOALS_OVER_UNDER,

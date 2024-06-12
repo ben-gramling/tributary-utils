@@ -1,14 +1,14 @@
 package com.arbriver.tributaryutils.lib.model;
 
 import com.arbriver.tributaryutils.lib.model.constants.Sport;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.Data;
+import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
-@Getter
-@Setter
-@Document(collection = "Match")
+@Data
+@Document(collection = "matches")
 public class Match {
+    @Id
     private String matchID;
     private Sport sport;
     private String homeName;

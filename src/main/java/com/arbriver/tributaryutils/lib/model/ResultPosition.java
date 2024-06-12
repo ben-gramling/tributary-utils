@@ -7,10 +7,7 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Getter
 @Setter
-@Document(collection = "ResultPosition")
-public class ResultPosition {
+@Document(collection = "result_positions")
+public class ResultPosition extends Position {
     private ResultBetType betType;
-    private String value;
-    private Double odds;
-    private String matchRefId;
 }
