@@ -2,13 +2,10 @@ package com.arbriver.tributaryutils.lib.utils;
 
 import com.arbriver.tributaryutils.lib.model.BetType;
 import com.arbriver.tributaryutils.lib.model.Bookmaker;
-import com.arbriver.tributaryutils.lib.model.constants.ResultBetType;
 import com.arbriver.tributaryutils.lib.model.constants.Sport;
 
-import static java.util.Objects.hash;
-
 public class UpdateHelper {
-    final static int HASH_LENGTH = 10;
+    final static int HASH_LENGTH = 11;
 
     public static String generateMatchID(Sport sport, String homeTeam, String awayTeam) {
 
