@@ -19,5 +19,10 @@ public enum ResultBetType implements BetType {
     EXACT_GOALS,
     TEAM_EXACT_GOALS,
     TEAM_TO_SCORE,
-    DRAW_NO_BET
+    DRAW_NO_BET;
+
+    @Override
+    public String getId() {
+        return String.format("%02d", ordinal());
+    }
 }

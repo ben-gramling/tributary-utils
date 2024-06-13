@@ -22,7 +22,7 @@ public class BasicUpdateProcessor implements UpdateProcessor {
         //for now we are just saving the update to mongodb.
         //in the future we will check to see if it is a genuine update and we will send to stream
         matchRepository.save(update.getMatch());
-        for (Position position : update.getPositions()) {
+        for (Position<?> position : update.getPositions()) {
             if(position instanceof PropPosition propPosition) {
                 propPositionRepository.save(propPosition);
             } else if(position instanceof ResultPosition resultPosition) {

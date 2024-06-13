@@ -12,6 +12,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 public class SharedConfigurationReference {
     @Bean
     public WebClient webClient() {
-        return WebClient.create();
+        return WebClient.builder().codecs(configurer ->
+                configurer.defaultCodecs().maxInMemorySize(Integer.MAX_VALUE)).build();
     }
 }

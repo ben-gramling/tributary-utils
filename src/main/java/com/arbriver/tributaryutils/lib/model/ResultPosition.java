@@ -8,6 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @Document(collection = "result_positions")
-public class ResultPosition extends Position {
-    private ResultBetType betType;
+public class ResultPosition extends Position<ResultBetType> {
+
 }

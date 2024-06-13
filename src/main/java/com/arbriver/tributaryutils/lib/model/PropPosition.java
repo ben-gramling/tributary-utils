@@ -8,7 +8,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Getter
 @Setter
 @Document(collection = "prop_positions")
-public class PropPosition extends Position {
-    private PropBetType betType;
+public class PropPosition extends Position<PropBetType> {
     private String participant;
 }
