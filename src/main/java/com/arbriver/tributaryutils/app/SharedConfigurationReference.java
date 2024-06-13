@@ -10,5 +10,8 @@ import org.springframework.web.reactive.function.client.WebClient;
 @EnableMongoRepositories(basePackages = "com.arbriver")
 @ComponentScan("com.arbriver")
 public class SharedConfigurationReference {
-
+    @Bean
+    public WebClient webClient() {
+        return WebClient.create();
+    }
 }
