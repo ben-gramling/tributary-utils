@@ -26,7 +26,7 @@ public class Position {
 
     public void generateBetId() {
         assert matchRefId != null;
-        assert betId != null;
+        assert value != null;
         assert betType != null;
         assert bookmaker != null;
         this.betId = UpdateHelper.generateBetId(matchRefId, value, bookmaker, betType);
