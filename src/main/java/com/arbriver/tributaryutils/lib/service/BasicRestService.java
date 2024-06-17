@@ -1,6 +1,7 @@
 package com.arbriver.tributaryutils.lib.service;
 
 import lombok.NonNull;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 
@@ -14,7 +15,7 @@ public class BasicRestService {
     protected WebClient webClient;
 
 
-    public BasicRestService(WebClient webClient, Environment environment) {
+    public BasicRestService(@Qualifier("base") WebClient webClient, Environment environment) {
         this.webClient = webClient;
         this.environment = environment;
     }
