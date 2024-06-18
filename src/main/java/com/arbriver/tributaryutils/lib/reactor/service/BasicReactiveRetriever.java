@@ -4,6 +4,7 @@ import com.arbriver.tributaryutils.lib.model.EventIDMapping;
 import com.arbriver.tributaryutils.lib.model.MatchMarketsMapping;
 import com.arbriver.tributaryutils.lib.model.MatchUpdate;
 import com.arbriver.tributaryutils.lib.reactor.model.ReactiveRetriever;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.JsonElement;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
@@ -11,8 +12,8 @@ import reactor.core.publisher.Flux;
 
 @Service
 public class BasicReactiveRetriever implements ReactiveRetriever {
-    private BasicRetrieverParser parser;
-    private BasicRestService restService;
+    private final BasicRetrieverParser parser;
+    private final BasicRestService restService;
 
     public BasicReactiveRetriever(
             @Qualifier("parser") BasicRetrieverParser parser,
@@ -23,7 +24,7 @@ public class BasicReactiveRetriever implements ReactiveRetriever {
 
     @Override
     public Flux<MatchUpdate> startRetrieving() {
-        Flux<JsonElement> jEvents = restService.getEventStream();
+        Flux<JsonNode> jEvents = restService.getEventStream();
         Flux<EventIDMapping> eventMappings = parser.parseEventResponse(jEvents);
         Flux<MatchMarketsMapping> marketsMapping = restService.getMarketsStream(eventMappings);
         return parser.parseMarketsResponse(marketsMapping);

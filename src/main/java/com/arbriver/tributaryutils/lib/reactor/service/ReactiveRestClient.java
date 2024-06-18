@@ -1,5 +1,6 @@
 package com.arbriver.tributaryutils.lib.reactor.service;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.JsonElement;
 import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
@@ -43,33 +44,33 @@ public class ReactiveRestClient {
         return useProxy ? proxyWebClient : webClient;
     }
 
-    public Mono<JsonElement> getRequest(String uri) {
+    public Mono<JsonNode> getRequest(String uri) {
         return getRequest(uri, false);
     }
 
-    public Mono<JsonElement> getRequest(String uri, boolean useProxy) {
+    public Mono<JsonNode> getRequest(String uri, boolean useProxy) {
         if(useProxy) {
             try {
                 URI proxyURI = proxyURIBuilder.addParameter("url", uri).build();
-                return proxyWebClient.get().uri(proxyURI).retrieve().bodyToMono(JsonElement.class);
+                return proxyWebClient.get().uri(proxyURI).retrieve().bodyToMono(JsonNode.class);
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);
                 return Mono.error(e);
             }
         } else {
-            return webClient.get().uri(uri).retrieve().bodyToMono(JsonElement.class);
+            return webClient.get().uri(uri).retrieve().bodyToMono(JsonNode.class);
         }
     }
 
-    public Mono<JsonElement> getRequestWithClient(WebClient webClient, String uri) {
-        return webClient.get().uri(uri).retrieve().bodyToMono(JsonElement.class);
+    public Mono<JsonNode> getRequestWithClient(WebClient webClient, String uri) {
+        return webClient.get().uri(uri).retrieve().bodyToMono(JsonNode.class);
     }
 
-    public Mono<JsonElement> postRequest(String uri, Object body) {
+    public Mono<JsonNode> postRequest(String uri, Object body) {
         return postRequest(uri, body, false);
     }
 
-    public Mono<JsonElement> postRequest(String uri, Object body, boolean useProxy) {
+    public Mono<JsonNode> postRequest(String uri, Object body, boolean useProxy) {
         if(useProxy) {
             try {
                 URI proxyURI = proxyURIBuilder.addParameter("url", uri).build();
@@ -77,7 +78,7 @@ public class ReactiveRestClient {
                         .uri(proxyURI)
                         .bodyValue(body)
                         .retrieve()
-                        .bodyToMono(JsonElement.class);
+                        .bodyToMono(JsonNode.class);
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);
                 return Mono.error(e);
@@ -87,7 +88,7 @@ public class ReactiveRestClient {
                     .uri(uri)
                     .bodyValue(body)
                     .retrieve()
-                    .bodyToMono(JsonElement.class);
+                    .bodyToMono(JsonNode.class);
         }
     }
 

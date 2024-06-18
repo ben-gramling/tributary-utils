@@ -1,6 +1,7 @@
 package com.arbriver.tributaryutils.app;
 
 import com.arbriver.tributaryutils.lib.model.RetrievalService;
+import com.arbriver.tributaryutils.lib.reactor.model.ReactiveRetriever;
 import com.arbriver.tributaryutils.lib.reactor.service.BasicRestService;
 import com.arbriver.tributaryutils.lib.reactor.service.BasicRetrieverParser;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,27 +14,31 @@ import java.util.List;
 
 @Configuration
 public class RetrievalServiceConfiguration {
-    @Autowired
-    private List<RetrievalService> retrievers;
+//    @Autowired
+//    private List<RetrievalService> retrievalServices;
     @Autowired
     private List<BasicRetrieverParser> basicParsers;
     @Autowired
     private List<BasicRestService> basicRestServices;
 
-    @Bean("retriever")
-    public RetrievalService getProcessor(Environment env) {
-        try {
-            String updateRetriever = env.getProperty(CommonConstants.RETRIEVER_CLASS);
-            for (RetrievalService retriever : retrievers) {
-                if (retriever.getClass().getSimpleName().equals(updateRetriever)) {
-                    return retriever;
-                }
-            }
-            throw new ClassNotFoundException(updateRetriever + " not found");
-        } catch(Exception e) {
-            throw new RuntimeException(e);
-        }
-    }
+//    @Bean("old_retriever")
+//    public RetrievalService getRetrieverOld(Environment env) {
+//        try {
+//            String updateRetriever = env.getProperty(CommonConstants.RETRIEVER_CLASS);
+//            for (RetrievalService retriever : retrievalServices) {
+//                if (retriever.getClass().getSimpleName().equals(updateRetriever)) {
+//                    return retriever;
+//                }
+//            }
+//            throw new ClassNotFoundException(updateRetriever + " not found");
+//        } catch(Exception e) {
+//            throw new RuntimeException(e);
+//        }
+//    }
+
+
+
+
 
     @Bean("parser")
     public BasicRetrieverParser getParser(Environment env) {

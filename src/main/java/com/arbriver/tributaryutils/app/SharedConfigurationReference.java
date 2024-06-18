@@ -7,7 +7,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.boot.autoconfigure.AutoConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.ComponentScan;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.data.mongodb.repository.config.EnableReactiveMongoRepositories;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.MediaType;
 import org.springframework.http.codec.json.Jackson2JsonDecoder;
@@ -19,7 +19,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
 
 @AutoConfiguration
-@EnableMongoRepositories(basePackages = "com.arbriver")
+@EnableReactiveMongoRepositories(basePackages = "com.arbriver")
 @ComponentScan("com.arbriver")
 public class SharedConfigurationReference {
     private final Logger _logger = LoggerFactory.getLogger(this.getClass());
@@ -52,6 +52,9 @@ public class SharedConfigurationReference {
     private Mono<ClientResponse> renderApiErrorResponse(ClientResponse clientResponse) {
         if(clientResponse.statusCode().isSameCodeAs(HttpStatusCode.valueOf(422))){
             return Mono.error(new Exception("Proxy could not access the endpoint: " + clientResponse.request().getURI().getQuery()));
+        }
+        if(clientResponse.statusCode().isSameCodeAs(HttpStatusCode.valueOf(400))){
+            return Mono.error(new Exception("Proxy could not process the request: " + clientResponse.request().getURI().getQuery()));
         }
         return Mono.just(clientResponse);
     }

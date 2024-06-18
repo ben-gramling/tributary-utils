@@ -1,5 +1,5 @@
 package com.arbriver.tributaryutils.lib.model;
 
-import com.google.gson.JsonElement;
+import com.fasterxml.jackson.databind.JsonNode;
 
-public record MatchMarketsMapping(Match match, JsonElement markets) { }
+public record MatchMarketsMapping(Match match, JsonNode markets) { }
