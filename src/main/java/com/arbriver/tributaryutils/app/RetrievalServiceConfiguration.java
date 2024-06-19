@@ -14,31 +14,10 @@ import java.util.List;
 
 @Configuration
 public class RetrievalServiceConfiguration {
-//    @Autowired
-//    private List<RetrievalService> retrievalServices;
     @Autowired
     private List<BasicRetrieverParser> basicParsers;
     @Autowired
     private List<BasicRestService> basicRestServices;
-
-//    @Bean("old_retriever")
-//    public RetrievalService getRetrieverOld(Environment env) {
-//        try {
-//            String updateRetriever = env.getProperty(CommonConstants.RETRIEVER_CLASS);
-//            for (RetrievalService retriever : retrievalServices) {
-//                if (retriever.getClass().getSimpleName().equals(updateRetriever)) {
-//                    return retriever;
-//                }
-//            }
-//            throw new ClassNotFoundException(updateRetriever + " not found");
-//        } catch(Exception e) {
-//            throw new RuntimeException(e);
-//        }
-//    }
-
-
-
-
 
     @Bean("parser")
     public BasicRetrieverParser getParser(Environment env) {
