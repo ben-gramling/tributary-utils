@@ -1,39 +1,41 @@
 package com.arbriver.tributaryutils.lib.service;
 
-import lombok.NonNull;
-import org.springframework.beans.factory.annotation.Qualifier;
+import com.arbriver.tributaryutils.lib.utils.ReactiveRestClient;
+import com.arbriver.tributaryutils.lib.model.EventIDMapping;
+import com.arbriver.tributaryutils.lib.model.MatchMarketsMapping;
+import com.fasterxml.jackson.databind.JsonNode;
+import org.reactivestreams.Publisher;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
-
-import org.springframework.web.reactive.function.client.WebClient;
-
+import reactor.core.publisher.Flux;
 import java.text.MessageFormat;
 
+import java.util.Objects;
+
 @Service
-public class BasicRestService {
-    protected final Environment environment;
-    protected WebClient webClient;
+public abstract class BasicRestService {
+    private final Logger _logger = LoggerFactory.getLogger(this.getClass());
+    protected final String PROP_PREFIX = "retriever.request.";
+    protected final ReactiveRestClient restService;
+    protected final Environment env;
 
-
-    public BasicRestService(@Qualifier("base") WebClient webClient, Environment environment) {
-        this.webClient = webClient;
-        this.environment = environment;
+    public BasicRestService(ReactiveRestClient reactiveRestClient, Environment env) {
+        this.restService = reactiveRestClient;
+        this.env = env;
     }
 
-    public WebClient.RequestHeadersSpec<?> getBasicTemplatedRequest(@NonNull String uriTemplate, String ... strings) {
-        String mainURI = MessageFormat.format(uriTemplate, (Object[]) strings);
-        return webClient.get()
-                .uri(mainURI);
-    }
+    //IMPLEMENT THIS METHOD IN SUBCLASS
+    public Flux<JsonNode> getEventStream() {
+        return null;
+    };
 
-    public WebClient.RequestHeadersSpec<?> getBasicRequest(@NonNull String uri) {
-        return webClient.get()
-                .uri(uri);
-    }
+    //IMPLEMENT THIS METHOD IN SUBCLASS
+    public abstract Flux<MatchMarketsMapping> getMarketsStream(Publisher<EventIDMapping> eventStream);
 
-    public WebClient.RequestHeadersSpec<?> postBasicTemplatedRequest(@NonNull String uri, Object body, String... strings) {
-        return webClient.post()
-                .uri(MessageFormat.format(uri, (Object[]) strings))
-                .bodyValue(body);
+    protected String buildRequestTemplate(String propertyName, String ... strings) {
+        String requestTemplate = Objects.requireNonNull(env.getProperty(PROP_PREFIX + propertyName + ".template"));
+        return MessageFormat.format(requestTemplate, (Object[]) strings);
     }
 }

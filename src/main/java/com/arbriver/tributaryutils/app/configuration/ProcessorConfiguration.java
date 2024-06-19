@@ -1,6 +1,6 @@
-package com.arbriver.tributaryutils.app;
+package com.arbriver.tributaryutils.app.configuration;
 
-import com.arbriver.tributaryutils.lib.reactor.model.ReactiveProcessor;
+import com.arbriver.tributaryutils.lib.model.service.ReactiveProcessor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;

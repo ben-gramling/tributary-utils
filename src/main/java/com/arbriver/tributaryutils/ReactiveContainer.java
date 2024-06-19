@@ -1,8 +1,8 @@
 package com.arbriver.tributaryutils;
 
 import com.arbriver.tributaryutils.lib.model.MatchUpdate;
-import com.arbriver.tributaryutils.lib.reactor.model.ReactiveProcessor;
-import com.arbriver.tributaryutils.lib.reactor.model.ReactiveRetriever;
+import com.arbriver.tributaryutils.lib.model.service.ReactiveProcessor;
+import com.arbriver.tributaryutils.lib.model.service.ReactiveRetriever;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;

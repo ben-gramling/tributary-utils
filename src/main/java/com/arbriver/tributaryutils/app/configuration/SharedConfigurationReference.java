@@ -1,4 +1,4 @@
-package com.arbriver.tributaryutils.app;
+package com.arbriver.tributaryutils.app.configuration;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;

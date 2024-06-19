@@ -1,9 +1,9 @@
-package com.arbriver.tributaryutils.lib.reactor.service;
+package com.arbriver.tributaryutils.lib.service;
 
 import com.arbriver.tributaryutils.lib.dal.MatchRepository;
 import com.arbriver.tributaryutils.lib.dal.PositionRepository;
 import com.arbriver.tributaryutils.lib.model.MatchUpdate;
-import com.arbriver.tributaryutils.lib.reactor.model.ReactiveProcessor;
+import com.arbriver.tributaryutils.lib.model.service.ReactiveProcessor;
 import org.reactivestreams.Publisher;
 import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;

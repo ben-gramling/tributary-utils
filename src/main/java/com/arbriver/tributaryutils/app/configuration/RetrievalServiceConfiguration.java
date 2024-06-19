@@ -1,9 +1,7 @@
-package com.arbriver.tributaryutils.app;
+package com.arbriver.tributaryutils.app.configuration;
 
-import com.arbriver.tributaryutils.lib.model.RetrievalService;
-import com.arbriver.tributaryutils.lib.reactor.model.ReactiveRetriever;
-import com.arbriver.tributaryutils.lib.reactor.service.BasicRestService;
-import com.arbriver.tributaryutils.lib.reactor.service.BasicRetrieverParser;
+import com.arbriver.tributaryutils.lib.service.BasicRestService;
+import com.arbriver.tributaryutils.lib.service.BasicRetrieverParser;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

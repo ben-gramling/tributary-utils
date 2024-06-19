@@ -1,7 +1,7 @@
-package com.arbriver.tributaryutils.app;
+package com.arbriver.tributaryutils.app.configuration;
 
 import com.arbriver.tributaryutils.lib.model.constants.CommonConstants;
-import com.arbriver.tributaryutils.lib.reactor.model.ReactiveRetriever;
+import com.arbriver.tributaryutils.lib.model.service.ReactiveRetriever;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
