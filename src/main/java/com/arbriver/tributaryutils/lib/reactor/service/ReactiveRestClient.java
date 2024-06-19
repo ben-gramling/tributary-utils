@@ -21,7 +21,7 @@ public class ReactiveRestClient {
     protected final Environment environment;
     private final WebClient webClient;
     private final WebClient proxyWebClient;
-    private final URIBuilder proxyURIBuilder;
+    private final URI baseURI;
 
 
     public ReactiveRestClient(
@@ -33,8 +33,9 @@ public class ReactiveRestClient {
         this.proxyWebClient = proxyWebClient;
         String proxyStringBaseURL = Objects.requireNonNull(environment.getProperty("proxy.template"));
         try {
-            proxyURIBuilder = new URIBuilder(proxyStringBaseURL)
-                    .addParameter("js_instructions", Objects.requireNonNull(environment.getProperty("proxy.jsinstructions")));
+            baseURI = new URIBuilder(proxyStringBaseURL)
+                    .addParameter("js_instructions", Objects.requireNonNull(environment.getProperty("proxy.jsinstructions")))
+                    .build();
         } catch (URISyntaxException e) {
             throw new RuntimeException(e);
         }
@@ -51,7 +52,8 @@ public class ReactiveRestClient {
     public Mono<JsonNode> getRequest(String uri, boolean useProxy) {
         if(useProxy) {
             try {
-                URI proxyURI = proxyURIBuilder.addParameter("url", uri).build();
+                URIBuilder uriBuilder = new URIBuilder(baseURI);
+                URI proxyURI = uriBuilder.addParameter("url", uri).build();
                 return proxyWebClient.get().uri(proxyURI).retrieve().bodyToMono(JsonNode.class);
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);
@@ -73,7 +75,8 @@ public class ReactiveRestClient {
     public Mono<JsonNode> postRequest(String uri, Object body, boolean useProxy) {
         if(useProxy) {
             try {
-                URI proxyURI = proxyURIBuilder.addParameter("url", uri).build();
+                URIBuilder uriBuilder = new URIBuilder(baseURI);
+                URI proxyURI = uriBuilder.addParameter("url", uri).build();
                 return proxyWebClient.post()
                         .uri(proxyURI)
                         .bodyValue(body)
