@@ -54,7 +54,7 @@ public class ReactiveRestClient {
             try {
                 URIBuilder uriBuilder = new URIBuilder(baseURI);
                 URI proxyURI = uriBuilder.addParameter("url", uri).build();
-                return proxyWebClient.get().uri(proxyURI).retrieve().bodyToMono(JsonNode.class);
+                return proxyWebClient.get().uri(proxyURI).retrieve().bodyToMono(JsonNode.class).map(node -> node.get(0));
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);
                 return Mono.error(e);
@@ -81,7 +81,8 @@ public class ReactiveRestClient {
                         .uri(proxyURI)
                         .bodyValue(body)
                         .retrieve()
-                        .bodyToMono(JsonNode.class);
+                        .bodyToMono(JsonNode.class)
+                        .map(node -> node.get(0));
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);
                 return Mono.error(e);

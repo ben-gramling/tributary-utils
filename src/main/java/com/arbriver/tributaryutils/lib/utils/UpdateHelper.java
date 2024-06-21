@@ -8,7 +8,6 @@ public class UpdateHelper {
     final static int HASH_LENGTH = 11;
 
     public static String generateMatchID(Sport sport, String homeTeam, String awayTeam) {
-
         StringBuilder result = new StringBuilder();
         result.append(sport.getId());
         result.append("-");
