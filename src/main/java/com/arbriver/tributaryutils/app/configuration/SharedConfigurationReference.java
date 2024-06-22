@@ -29,6 +29,9 @@ public class SharedConfigurationReference {
         return WebClient.builder().codecs(configurer ->
                 configurer.defaultCodecs().maxInMemorySize(Integer.MAX_VALUE))
                 .defaultHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36")
+                .defaultHeader("Connection", "keep-alive")
+                .defaultHeader("Accept","*/*")
+                .defaultHeader("Accept-Encoding","gzip, deflate, br")
                 .build();
     }
 
@@ -44,8 +47,9 @@ public class SharedConfigurationReference {
                             .decoder(dec);
                 }).build())
                 .filter(ExchangeFilterFunction.ofResponseProcessor(this::renderApiErrorResponse))
+                .defaultHeader("User-Agent", "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36")
                 .defaultHeader("Content-Type","application/json")
-                .defaultCookie("Accept","application/json")
+                .defaultHeader("Accept","application/json")
                 .build();
     }
 

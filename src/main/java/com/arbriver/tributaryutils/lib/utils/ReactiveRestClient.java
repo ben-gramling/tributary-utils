@@ -1,18 +1,22 @@
 package com.arbriver.tributaryutils.lib.utils;
 
+import com.fasterxml.jackson.core.JsonParseException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.google.gson.JsonElement;
 import org.apache.hc.core5.net.URIBuilder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.core.codec.DecodingException;
 import org.springframework.core.env.Environment;
 import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Mono;
+import reactor.util.retry.Retry;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.time.Duration;
 import java.util.Objects;
 
 @Service
@@ -54,13 +58,40 @@ public class ReactiveRestClient {
             try {
                 URIBuilder uriBuilder = new URIBuilder(baseURI);
                 URI proxyURI = uriBuilder.addParameter("url", uri).build();
-                return proxyWebClient.get().uri(proxyURI).retrieve().bodyToMono(JsonNode.class).map(node -> node.get(0));
+                return proxyWebClient.get()
+                        .uri(proxyURI)
+                        .retrieve()
+                        .bodyToMono(JsonNode.class)
+                        .map(node -> node.get(0))
+                        .onErrorResume(e -> {
+                            if(e instanceof DecodingException) {
+                                _logger.warn("Could not parse json for uri, returning empty: {}", uri);
+                                return Mono.empty();
+                            }
+                            return Mono.error(e);
+                        })
+                        .retryWhen(Retry.backoff(2, Duration.ofSeconds(5))
+                                .doBeforeRetry(retrySignal -> {_logger.warn("retry #{} of {} for url {}", retrySignal.totalRetries() + 1, 2, uri);}))
+                        .onErrorResume(Mono::error);
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);
                 return Mono.error(e);
             }
         } else {
-            return webClient.get().uri(uri).retrieve().bodyToMono(JsonNode.class);
+            return webClient.get()
+                    .uri(uri)
+                    .retrieve()
+                    .bodyToMono(JsonNode.class)
+                    .onErrorResume(e -> {
+                        if(e instanceof DecodingException) {
+                            _logger.warn("Could not parse json for uri, returning empty: {}", uri);
+                            return Mono.empty();
+                        }
+                        return Mono.error(e);
+                    })
+                    .retryWhen(Retry.backoff(2, Duration.ofSeconds(5))
+                            .doBeforeRetry(retrySignal -> {_logger.warn("retry #{} of {} for url {}", retrySignal.totalRetries() + 1, 2, uri);}))
+                    .onErrorResume(Mono::error);
         }
     }
 
@@ -82,7 +113,17 @@ public class ReactiveRestClient {
                         .bodyValue(body)
                         .retrieve()
                         .bodyToMono(JsonNode.class)
-                        .map(node -> node.get(0));
+                        .map(node -> node.get(0))
+                        .onErrorResume(e -> {
+                            if(e instanceof JsonParseException) {
+                                _logger.warn("Could not parse json for uri, returning empty: {}", uri);
+                                return Mono.empty();
+                            }
+                            return Mono.error(e);
+                        })
+                        .retryWhen(Retry.backoff(2, Duration.ofSeconds(5))
+                                .doBeforeRetry(retrySignal -> {_logger.warn("retry #{} of {} for url {}", retrySignal.totalRetries() + 1, 2, uri);}))
+                        .onErrorResume(Mono::error);
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);
                 return Mono.error(e);
@@ -92,7 +133,17 @@ public class ReactiveRestClient {
                     .uri(uri)
                     .bodyValue(body)
                     .retrieve()
-                    .bodyToMono(JsonNode.class);
+                    .bodyToMono(JsonNode.class)
+                    .onErrorResume(e -> {
+                        if(e instanceof JsonParseException) {
+                            _logger.warn("Could not parse json for uri, returning empty: {}", uri);
+                            return Mono.empty();
+                        }
+                        return Mono.error(e);
+                    })
+                    .retryWhen(Retry.backoff(2, Duration.ofSeconds(5))
+                            .doBeforeRetry(retrySignal -> {_logger.warn("retry #{} of {} for url {}", retrySignal.totalRetries() + 1, 2, uri);}))
+                    .onErrorResume(Mono::error);
         }
     }
 
