@@ -2,6 +2,7 @@ package com.arbriver.tributaryutils.lib.utils;
 
 import com.arbriver.tributaryutils.lib.model.BetType;
 import com.arbriver.tributaryutils.lib.model.Bookmaker;
+import com.arbriver.tributaryutils.lib.model.constants.CommonConstants;
 import com.arbriver.tributaryutils.lib.model.constants.Sport;
 
 public class UpdateHelper {
@@ -32,4 +33,17 @@ public class UpdateHelper {
         result.append(book.getId()).append(betType.getId()).append("-").append(valueSegment);
         return result.toString();
     };
+
+    public static String cleanName(String input) {
+        StringBuilder result = new StringBuilder();
+        String[] tokens = input
+                .toLowerCase()
+                .replaceAll("[^A-Za-z0-9\\s]","")
+                .trim()
+                .split(" ");
+        for (String token : tokens) {
+            if(!CommonConstants.badWords.contains(token)) result.append(token).append("_");
+        }
+        return result.substring(0, result.length()-1);
+    }
 }

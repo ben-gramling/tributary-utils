@@ -24,6 +24,6 @@ public class BasicReactiveProcessor implements ReactiveProcessor {
         return Flux.from(_update).flatMap(update ->
                 Flux.merge(matchRepository.save(update.match()),
                         positionRepository.saveAll(update.positions()))
-        );
+        , 20);
     }
 }

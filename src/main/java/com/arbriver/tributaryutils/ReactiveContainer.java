@@ -25,6 +25,9 @@ public class ReactiveContainer {
     public void start() {
         Flux<MatchUpdate> updates = retrievalService.startRetrieving();
         Flux<Object> saveResult = updateProcessor.processUpdates(updates);
-        saveResult.subscribe();
+        saveResult.doOnComplete(() -> {
+            _logger.info("Completed execution. Shutting down.");
+            System.exit(0);
+        }).subscribe();
     }
 }

@@ -6,6 +6,8 @@ import lombok.Data;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
+import java.util.Map;
+
 @Data
 @Document(collection = "matches")
 public class Match {
@@ -14,6 +16,7 @@ public class Match {
     private Sport sport;
     private String homeName;
     private String awayName;
+    private Map<Bookmaker, String> links;
 
     public void generateMatchID() {
         assert sport != null;
