@@ -88,6 +88,16 @@ public class BasicReactiveRetriever implements ReactiveRetriever {
             newLinks.putAll(existingMatch.getLinks());
             newLinks.putAll(match.getLinks());
             temp.setLinks(newLinks);
+            temp.setNumBooks(temp.getLinks().size());
+            if(match.getStartTime() != null && match.getStartTime().getEpochSecond() - existingMatch.getStartTime().getEpochSecond() != 0) {
+                _logger.warn("This match ({} vs {}) has a start time {} that conflicts with an existing start time of {}. Will override existing time.",
+                        match.getHomeName(), match.getAwayName(), match.getStartTime(), existingMatch.getStartTime());
+            }
+            if(match.getStartTime() != null) {
+                temp.setStartTime(match.getStartTime());
+            }else {
+                temp.setStartTime(existingMatch.getStartTime());
+            }
             return Mono.just(new EventIDMapping(eventMapping.eventID(), temp));
         });
     }
