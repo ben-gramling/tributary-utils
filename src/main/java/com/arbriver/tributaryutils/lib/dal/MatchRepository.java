@@ -79,6 +79,33 @@ public interface MatchRepository extends ReactiveMongoRepository<Match, String> 
    """})
     Mono<Match> findSimilarMatchOneSide(String homeName, String awayName, Instant lowerBound, Instant upperBound);
 
+    @Aggregation(pipeline =  {"""
+        {
+           '$search': {
+            'index': 'matchSearchIndex',
+            'compound': {
+                'should': [
+                    {
+                        'text':  {
+                            'query': '?1',
+                            'path': 'awayName',
+                            'fuzzy': { maxEdits: 2 }
+                        }
+                    },
+                    {
+                        'text':  {
+                            'query': '?0',
+                            'path': 'homeName',
+                            'fuzzy': { maxEdits: 2 }
+                        }
+                    }
+                ],
+            minimumShouldMatch: 2
+            }
+        }}
+   """})
+    Mono<Match> findSimilarMatchByNames(String homeName, String awayName);
+
     @Query(value = "{ numBooks: { $gt: 1}}")
     Flux<Match> findMatchesWithMultipleBooks();
 }

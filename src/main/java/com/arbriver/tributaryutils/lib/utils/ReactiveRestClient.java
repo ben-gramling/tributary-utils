@@ -62,7 +62,6 @@ public class ReactiveRestClient {
                         .uri(proxyURI)
                         .retrieve()
                         .bodyToMono(JsonNode.class)
-                        .map(node -> node.get(0))
                         .onErrorResume(e -> {
                             if(e instanceof DecodingException) {
                                 _logger.warn("Could not parse json for uri, returning empty: {}", uri);
@@ -71,7 +70,7 @@ public class ReactiveRestClient {
                             return Mono.error(e);
                         })
                         .retryWhen(Retry.backoff(2, Duration.ofSeconds(5))
-                                .doBeforeRetry(retrySignal -> {_logger.warn("retry #{} of {} for url {}", retrySignal.totalRetries() + 1, 2, uri);}))
+                                .doBeforeRetry(retrySignal -> {_logger.warn("retry #{} of {} for url {}", retrySignal.totalRetries() + 1, 2, proxyURI);}))
                         .onErrorResume(Mono::error);
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);
@@ -113,7 +112,6 @@ public class ReactiveRestClient {
                         .bodyValue(body)
                         .retrieve()
                         .bodyToMono(JsonNode.class)
-                        .map(node -> node.get(0))
                         .onErrorResume(e -> {
                             if(e instanceof JsonParseException) {
                                 _logger.warn("Could not parse json for uri, returning empty: {}", uri);
@@ -122,7 +120,7 @@ public class ReactiveRestClient {
                             return Mono.error(e);
                         })
                         .retryWhen(Retry.backoff(2, Duration.ofSeconds(5))
-                                .doBeforeRetry(retrySignal -> {_logger.warn("retry #{} of {} for url {}", retrySignal.totalRetries() + 1, 2, uri);}))
+                                .doBeforeRetry(retrySignal -> {_logger.warn("retry #{} of {} for url {}", retrySignal.totalRetries() + 1, 2, proxyURI);}))
                         .onErrorResume(Mono::error);
             } catch (URISyntaxException e) {
                 _logger.error("Error parsing proxy uri: {}", uri, e);

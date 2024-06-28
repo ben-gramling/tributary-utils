@@ -76,23 +76,28 @@ public class BasicReactiveRetriever implements ReactiveRetriever {
     private Mono<EventIDMapping> enrichEvent(EventIDMapping eventMapping) {
         Match match = eventMapping.match();
         _logger.info("Looking for similar matches to {} vs {} at {}", match.getHomeName(), match.getAwayName(), match.getStartTime());
-        //look using the fuzzy strategy
-        Mono<Match> potentialMatchOne = matchRepository.findSimilarMatchFuzzy(
-                        match.getHomeName(),
-                        match.getAwayName(),
-                        match.getStartTime().minus(Duration.ofDays(1)),
-                        match.getStartTime().plus(Duration.ofDays(1)));
+        Mono<Match> potentialMatch;
 
-        //look using the one-sided strategy
-        Mono<Match> potentialMatchTwo = potentialMatchOne.switchIfEmpty(matchRepository.findSimilarMatchOneSide(
-                match.getHomeName(),
-                match.getAwayName(),
-                match.getStartTime().minus(Duration.ofMinutes(30)),
-                match.getStartTime().plus(Duration.ofMinutes(30))
-        ));
+        if(match.getStartTime() == null) {
+            potentialMatch = matchRepository.findSimilarMatchByNames(match.getHomeName(), match.getAwayName());
+        } else {
+            //look using the fuzzy strategy
+            potentialMatch = matchRepository.findSimilarMatchFuzzy(
+                    match.getHomeName(),
+                    match.getAwayName(),
+                    match.getStartTime().minus(Duration.ofDays(1)),
+                    match.getStartTime().plus(Duration.ofDays(1)));
 
+            potentialMatch = potentialMatch.switchIfEmpty(matchRepository.findSimilarMatchOneSide(
+                    match.getHomeName(),
+                    match.getAwayName(),
+                    match.getStartTime().minus(Duration.ofMinutes(30)),
+                    match.getStartTime().plus(Duration.ofMinutes(30))
+            ));
 
-        return potentialMatchTwo.switchIfEmpty(Mono.error(new NameNotFoundException(
+        }
+
+        return potentialMatch.switchIfEmpty(Mono.error(new NameNotFoundException(
                         STR."Warning, match \{match.getHomeName()} vs \{match.getAwayName()} not found in DB. Discarding.")
                 ))
                 .onErrorResume(error -> {
