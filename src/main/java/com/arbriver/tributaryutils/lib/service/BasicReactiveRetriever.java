@@ -12,9 +12,15 @@ import org.springframework.stereotype.Service;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import javax.naming.NameNotFoundException;
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
+
+import static java.lang.StringTemplate.STR;
 
 @Service
 public class BasicReactiveRetriever implements ReactiveRetriever {
@@ -36,7 +42,7 @@ public class BasicReactiveRetriever implements ReactiveRetriever {
     }
 
     protected Flux<EventIDMapping> getEventIDMappingStream(Publisher<JsonNode> eventStream) {
-        return parser.parseEventResponse(eventStream).flatMap(this::normalizeEventMapping);
+        return parser.parseEventResponse(eventStream).flatMap(this::enrichEvent);
     }
 
     protected Flux<MatchMarketsMapping> getMarketsMapping(Publisher<EventIDMapping> eventIDMappingStream) {
@@ -67,38 +73,48 @@ public class BasicReactiveRetriever implements ReactiveRetriever {
                 });
     }
 
-    private Mono<EventIDMapping> normalizeEventMapping(EventIDMapping eventMapping) {
+    private Mono<EventIDMapping> enrichEvent(EventIDMapping eventMapping) {
         Match match = eventMapping.match();
-        return matchRepository.findSimilarMatch(match.getHomeName(), match.getAwayName())
-                .defaultIfEmpty(match)
+        _logger.info("Looking for similar matches to {} vs {} at {}", match.getHomeName(), match.getAwayName(), match.getStartTime());
+        //look using the fuzzy strategy
+        Mono<Match> potentialMatchOne = matchRepository.findSimilarMatchFuzzy(
+                        match.getHomeName(),
+                        match.getAwayName(),
+                        match.getStartTime().minus(Duration.ofDays(1)),
+                        match.getStartTime().plus(Duration.ofDays(1)));
+
+        //look using the one-sided strategy
+        Mono<Match> potentialMatchTwo = potentialMatchOne.switchIfEmpty(matchRepository.findSimilarMatchOneSide(
+                match.getHomeName(),
+                match.getAwayName(),
+                match.getStartTime().minus(Duration.ofMinutes(30)),
+                match.getStartTime().plus(Duration.ofMinutes(30))
+        ));
+
+
+        return potentialMatchTwo.switchIfEmpty(Mono.error(new NameNotFoundException(
+                        STR."Warning, match \{match.getHomeName()} vs \{match.getAwayName()} not found in DB. Discarding.")
+                ))
+                .onErrorResume(error -> {
+                    _logger.warn(error.getMessage());
+                    return Mono.empty();
+                })
                 .flatMap(existingMatch -> {
-            Match temp = new Match();
-            temp.setSport(existingMatch.getSport());
-            temp.setMatchID(match.getMatchID());
-            temp.setHomeName(match.getHomeName());
-            temp.setAwayName(match.getAwayName());
-            if(!match.getMatchID().equals(existingMatch.getMatchID())) {
-                _logger.info("This match ({} vs {}) looks like a duplicate of an existing match ({} vs {}). Will refer to the existing match: {}",
-                        match.getHomeName(), match.getAwayName(), existingMatch.getHomeName(), existingMatch.getAwayName(), existingMatch.getMatchID());
-                temp.setMatchID(existingMatch.getMatchID());
-                temp.setHomeName(existingMatch.getHomeName());
-                temp.setAwayName(existingMatch.getAwayName());
-            }
-            Map<Bookmaker, String> newLinks = new HashMap<>();
-            newLinks.putAll(existingMatch.getLinks());
-            newLinks.putAll(match.getLinks());
-            temp.setLinks(newLinks);
-            temp.setNumBooks(temp.getLinks().size());
-            if(match.getStartTime() != null && match.getStartTime().getEpochSecond() - existingMatch.getStartTime().getEpochSecond() != 0) {
-                _logger.warn("This match ({} vs {}) has a start time {} that conflicts with an existing start time of {}. Will override existing time.",
-                        match.getHomeName(), match.getAwayName(), match.getStartTime(), existingMatch.getStartTime());
-            }
-            if(match.getStartTime() != null) {
-                temp.setStartTime(match.getStartTime());
-            }else {
-                temp.setStartTime(existingMatch.getStartTime());
-            }
-            return Mono.just(new EventIDMapping(eventMapping.eventID(), temp));
-        });
+                    Match temp = new Match();
+                    temp.setSport(existingMatch.getSport());
+                    temp.setMatchID(existingMatch.getMatchID());
+                    temp.setHomeName(existingMatch.getHomeName());
+                    temp.setAwayName(existingMatch.getAwayName());
+                    Map<Bookmaker, String> newLinks = new HashMap<>();
+                    if(existingMatch.getLinks() != null) {
+                        newLinks.putAll(existingMatch.getLinks());
+                    }
+                    newLinks.putAll(match.getLinks());
+                    temp.setLinks(newLinks);
+                    temp.setNumBooks(temp.getLinks().size());
+                    temp.setLeague(existingMatch.getLeague());
+                    temp.setStartTime(existingMatch.getStartTime());
+                    return Mono.just(new EventIDMapping(eventMapping.eventID(), temp));
+                });
     }
 }

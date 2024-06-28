@@ -17,6 +17,7 @@ public class Match {
     private Sport sport;
     private String homeName;
     private String awayName;
+    private String league;
     private Map<Bookmaker, String> links;
     private Instant startTime;
     private int numBooks;

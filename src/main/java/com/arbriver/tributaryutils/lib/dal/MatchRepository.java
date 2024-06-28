@@ -8,9 +8,12 @@ import org.springframework.stereotype.Repository;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
+import java.time.Instant;
+import java.time.LocalDate;
+
 @Repository
 public interface MatchRepository extends ReactiveMongoRepository<Match, String> {
-    @Aggregation({"""
+    @Aggregation(pipeline =  {"""
         {
            '$search': {
             'index': 'matchSearchIndex',
@@ -18,16 +21,55 @@ public interface MatchRepository extends ReactiveMongoRepository<Match, String> 
                 'should': [
                     {
                         'text':  {
-                            'query': '$?1',
+                            'query': '?1',
                             'path': 'awayName',
                             'fuzzy': { maxEdits: 2 }
                         }
                     },
                     {
                         'text':  {
-                            'query': '$?0',
+                            'query': '?0',
                             'path': 'homeName',
                             'fuzzy': { maxEdits: 2 }
+                        }
+                    },
+                    {
+                        'range': {
+                            'path': 'startTime',
+                            'gte': ?2,
+                            'lte': ?3,
+                        }
+                    }
+                ],
+            minimumShouldMatch: 3
+            }
+        }}
+   """})
+    Mono<Match> findSimilarMatchFuzzy(String homeName, String awayName, Instant lowerBound, Instant upperBound);
+
+    @Aggregation(pipeline =  {"""
+        {
+           '$search': {
+            'index': 'matchSearchIndex',
+            'compound': {
+                'should': [
+                    {
+                        'text':  {
+                            'query': '?1',
+                            'path': 'awayName',
+                        }
+                    },
+                    {
+                        'text':  {
+                            'query': '?0',
+                            'path': 'homeName',
+                        }
+                    },
+                    {
+                        'range': {
+                            'path': 'startTime',
+                            'gte': ?2,
+                            'lte': ?3,
                         }
                     }
                 ],
@@ -35,7 +77,7 @@ public interface MatchRepository extends ReactiveMongoRepository<Match, String> 
             }
         }}
    """})
-    Mono<Match> findSimilarMatch(String homeName, String awayName);
+    Mono<Match> findSimilarMatchOneSide(String homeName, String awayName, Instant lowerBound, Instant upperBound);
 
     @Query(value = "{ numBooks: { $gt: 1}}")
     Flux<Match> findMatchesWithMultipleBooks();
